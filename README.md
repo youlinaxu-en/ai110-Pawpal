@@ -7,8 +7,16 @@ You are building **PawPal+**, a Streamlit app that helps a pet owner plan care t
 A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
 
 - Track pet care tasks (walks, feeding, meds, enrichment, grooming, etc.)
+    Action added: Walks, Feeding, Meds, Enrichment, Grooming, Cleaning, Behavior Record, Health Check.
+
 - Consider constraints (time available, priority, owner preferences)
+    Time Task: Time available: Need to note if there is confliction with exsited plans
+               Priority: Need to order any exsisted plan and highlight the essential one, also can alarm the owner when the owner not click "Done"(Done, Pending are two available buttons for owner to react) while the time is due.
+               Owner Preference: Need to know what kind of pet the owner is feeding, and remind pets owner if there is any needed check for pets. Like some pets may have congenital disease, so it will be necessary for owner to do check or feed their pets specific medicine on time. 
+               Category detail: May allow ownerto breeding their pets, like you can enter the page of this owner and it will show how older this pet it is, and note category, male/female, sterilization or not, the character of pets. Works like instagram, but just picture and word allowed. Other user can view the page and leave reaction to pets.
+               
 - Produce a daily plan and explain why it chose that plan
+
 
 Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
 
