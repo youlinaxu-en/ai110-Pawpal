@@ -54,8 +54,6 @@ if "owner" not in st.session_state:
     st.session_state.owner = Owner(id=1, name=owner_name, email="")
 if "next_pet_id" not in st.session_state:
     st.session_state.next_pet_id = 1
-if "next_task_id" not in st.session_state:
-    st.session_state.next_task_id = 1
 
 owner = st.session_state.owner
 owner.name = owner_name  # keep the stored Owner in sync with the widget
@@ -113,8 +111,10 @@ else:
         # Pet.add_task() is the Phase 2 method that owns this data: it
         # appends the Task onto the selected pet's task list AND sets
         # task.pet back to that pet, so the task stays traceable to its pet.
+        # The id comes from owner.next_task_id() (not a separate counter) so it
+        # can't collide with ids the scheduler auto-generates for recurring rollovers.
         new_task = Task(
-            id=st.session_state.next_task_id,
+            id=owner.next_task_id(),
             description=task_title,
             category=TaskCategory(category),
             scheduled_time=datetime.combine(date.today(), task_time),
@@ -122,7 +122,6 @@ else:
             duration_minutes=int(duration),
         )
         selected_pet.add_task(new_task)
-        st.session_state.next_task_id += 1
 
     all_tasks = owner.get_all_tasks()
     if all_tasks:

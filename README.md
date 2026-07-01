@@ -83,14 +83,29 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+### Sorting
 
-| Feature | Method(s) | Notes |
-|---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+- **`Scheduler.sort_by_time(tasks)`** — pure chronological sort (tie-broken by priority). Gives an agenda-style, time-ordered view of a task list.
+- **`Scheduler.sort_by_priority(tasks)`** — priority first (CRITICAL → LOW), then time, then category urgency (medication/health checks outrank routine care at equal priority), then duration. This is what `Scheduler.get_tasks_for_day()` uses to build the daily plan.
+
+### Filtering
+
+- **`Scheduler.filter_tasks(owner, pet_id=None, pet_name=None, status=None)`** — filter an owner's tasks by pet (id or name), by completion status (`PENDING`/`DONE`/`OVERDUE`/`MISSED`), or any combination of both.
+- **`Pet.get_tasks_by_status(status)`** — the same status filter scoped to a single pet.
+
+### Conflict detection
+
+Two intentionally separate layers:
+
+- **`Pet.add_task(task)` / `Task.reschedule(new_time)`** (backed by `Pet.find_conflicts`) — a hard guard for one pet's own calendar. If a new or rescheduled task's time window overlaps another active task *for that same pet*, it raises `SchedulingConflictError` instead of silently double-booking.
+- **`Scheduler.detect_conflicts(owner)`** — a lightweight, non-raising sweep across *all* of an owner's pets. Since one owner can't be in two places at once, this also catches two different pets' tasks landing at overlapping times, returning plain warning strings instead of an exception.
+
+### Recurring tasks
+
+- **`Task.occurs_on(day)`** — for a still-pending DAILY/WEEKLY task, reports whether it should appear on a given day without duplicating it into stored copies.
+- **`Task.mark_done()`**, via **`Task._spawn_next_occurrence()`** — once a DAILY/WEEKLY task is completed, a new `Task` instance is automatically created for the next occurrence (`scheduled_time + timedelta(days=1)` or `+ timedelta(weeks=1)`). The completed task becomes a closed historical record and the new instance starts `PENDING`.
+- **`Owner.next_task_id()`** — hands out a collision-free id for auto-spawned tasks (also used by the Streamlit UI for manually-added ones, so both paths share one id source).
+- **`Owner.get_tasks_for_date(day)` / `Scheduler.get_tasks_for_day(owner, day)`** — combine both mechanisms: exact-date lookup for one-off tasks, plus `occurs_on` expansion for still-open recurring ones.
 
 ## 📸 Demo Walkthrough
 
