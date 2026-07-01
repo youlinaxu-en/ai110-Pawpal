@@ -1,0 +1,162 @@
+classDiagram
+
+class Owner {
+    +int id
+    +string name
+    +string email
+    +list preferences
+
+    +createProfile()
+    +editProfile()
+    +addPet(pet)
+    +updatePreferences(preferences)
+}
+
+class Pet {
+    +int id
+    +string name
+    +string species
+    +string breed
+    +int age
+    +string gender
+    +string healthNotes
+
+    +createProfile()
+    +editProfile()
+}
+
+class CareTask {
+    +int id
+    +string title
+    +TaskCategory category
+    +int durationMinutes
+    +Priority priority
+    +string preferredTimeWindow
+    +TaskStatus status
+
+    +updateDuration(minutes)
+    +updatePriority(priority)
+    +markDone()
+    +markPending()
+}
+
+class TaskService {
+    +addTask(pet, task)
+    +editTask(taskId, updatedTask)
+    +deleteTask(taskId)
+    +getTasksByPet(pet)
+}
+
+class AvailabilitySlot {
+    +int id
+    +datetime startTime
+    +datetime endTime
+    +bool available
+    +string note
+
+    +updateAvailability(startTime, endTime, available)
+}
+
+class ScheduledTask {
+    +int id
+    +datetime scheduledStart
+    +datetime scheduledEnd
+    +string reason
+
+    +displaySummary()
+}
+
+class DailyPlan {
+    +int id
+    +date planDate
+    +list scheduledTasks
+    +string explanation
+
+    +getTasks()
+    +showPlan()
+    +showExplanation()
+}
+
+class CarePlanService {
+    +generatePlan(owner, pets, tasks, availability)
+    +detectConflict(task, scheduledTasks)
+    +sortByPriority(tasks)
+    +fitTasksIntoAvailability(tasks, availability)
+    +explainPlan(plan)
+}
+
+class Reminder {
+    +int id
+    +datetime reminderTime
+    +string message
+    +bool sent
+
+    +send()
+    +reschedule(newTime)
+}
+
+class SchedulingTest {
+    +testHighPriorityTaskScheduledFirst()
+    +testTaskFitsWithinAvailability()
+    +testConflictDetection()
+    +testUnavailableTimeRejected()
+    +testPlanExplanationGenerated()
+}
+
+class TaskCategory {
+    <<enumeration>>
+    WALK
+    FEEDING
+    MEDICATION
+    ENRICHMENT
+    GROOMING
+    CLEANING
+    BEHAVIOR_RECORD
+    HEALTH_CHECK
+}
+
+class Priority {
+    <<enumeration>>
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
+
+class TaskStatus {
+    <<enumeration>>
+    PENDING
+    DONE
+    OVERDUE
+    MISSED
+}
+
+Owner "1" --> "1..*" Pet : owns
+Owner "1" --> "0..*" AvailabilitySlot : has
+Owner "1" --> "0..*" DailyPlan : receives
+
+Pet "1" --> "0..*" CareTask : requires
+
+TaskService ..> Pet : manages tasks for
+TaskService ..> CareTask : creates and edits
+
+DailyPlan "1" --> "0..*" ScheduledTask : contains
+ScheduledTask "1" --> "1" CareTask : schedules
+
+CareTask "1" --> "0..*" Reminder : triggers
+
+CareTask --> TaskCategory : uses
+CareTask --> Priority : uses
+CareTask --> TaskStatus : uses
+
+CarePlanService ..> Owner : reads
+CarePlanService ..> Pet : reads
+CarePlanService ..> CareTask : schedules
+CarePlanService ..> AvailabilitySlot : checks
+CarePlanService ..> DailyPlan : creates
+CarePlanService ..> ScheduledTask : creates
+
+SchedulingTest ..> CarePlanService : tests
+SchedulingTest ..> CareTask : uses
+SchedulingTest ..> AvailabilitySlot : uses
+SchedulingTest ..> DailyPlan : verifies
